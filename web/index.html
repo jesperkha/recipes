@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="no">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <title>Oppskrifter</title>
+        <style>
+            .kind-badge[data-k="dinner"] {
+                background: #fce4ec;
+                color: #c62828;
+            }
+            .kind-badge[data-k="lunch"] {
+                background: #fff3e0;
+                color: #e65100;
+            }
+            .kind-badge[data-k="breakfast"] {
+                background: #fffde7;
+                color: #f57f17;
+            }
+            .kind-badge[data-k="sauce"] {
+                background: #fce4ec;
+                color: #ad1457;
+            }
+            .kind-badge[data-k="dessert"] {
+                background: #f3e5f5;
+                color: #7b1fa2;
+            }
+            .kind-badge[data-k="cocktail"] {
+                background: #e8eaf6;
+                color: #283593;
+            }
+            .kind-badge[data-k="snack"] {
+                background: #e0f2f1;
+                color: #00695c;
+            }
+        </style>
+    </head>
+    <body class="bg-white text-gray-800 antialiased">
+        <main class="mx-auto w-[90%] md:w-[50%] py-10">
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-400 tracking-wide uppercase">Oppskrifter</span>
+                <a
+                    href="/create"
+                    class="inline-flex items-center gap-1 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+                    title="Ny oppskrift"
+                    >Ny +</a
+                >
+            </div>
+
+            <h1 class="mt-6 text-4xl font-semibold tracking-tight text-gray-900">Hva lager du i dag?</h1>
+
+            <div class="mt-6 grid grid-cols-2 gap-3">
+                <select
+                    id="filter-time"
+                    onchange="applyFilters()"
+                    class="w-full rounded-lg bg-gray-50 px-4 py-2.5 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-gray-200 cursor-pointer"
+                >
+                    <option value="0">Alle tider</option>
+                    <option value="15">≤ 15 min</option>
+                    <option value="30">≤ 30 min</option>
+                    <option value="45">≤ 45 min</option>
+                    <option value="60">≤ 60 min</option>
+                    <option value="61">&gt; 60 min</option>
+                </select>
+                <select
+                    id="filter-kind"
+                    onchange="applyFilters()"
+                    class="w-full rounded-lg bg-gray-50 px-4 py-2.5 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-gray-200 cursor-pointer"
+                >
+                    <option value="">Alle typer</option>
+                    <option value="dinner">Middag</option>
+                    <option value="lunch">Lunsj</option>
+                    <option value="breakfast">Frokost</option>
+                    <option value="sauce">Saus</option>
+                    <option value="dessert">Dessert</option>
+                    <option value="cocktail">Cocktail</option>
+                    <option value="snack">Snacks</option>
+                </select>
+            </div>
+
+            <div id="recipe-list" class="mt-6 space-y-3">
+                {{ range . }}
+                <a
+                    href="/recipe/{{ .Slug }}"
+                    data-time="{{ .CookTimeMinutes }}"
+                    data-kind="{{ .Kind }}"
+                    class="recipe-card block p-5 rounded-lg border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm transition-all"
+                >
+                    <h2 class="text-lg font-medium text-gray-900">{{ .Name }}</h2>
+                    <p class="mt-1 text-sm text-gray-500">{{ .Description }}</p>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="text-xs text-gray-400">{{ .CookTimeMinutes }} min</span>
+                        {{ if .Kind }}
+                        <span class="kind-badge text-xs font-medium px-2 py-0.5 rounded-full" data-k="{{ .Kind }}"
+                            >{{ .Kind }}</span
+                        >
+                        {{ end }}
+                    </div>
+                </a>
+                {{ end }}
+            </div>
+        </main>
+
+        <script>
+            const kindLabels = {
+                dinner: "Middag",
+                lunch: "Lunsj",
+                breakfast: "Frokost",
+                sauce: "Saus",
+                dessert: "Dessert",
+                cocktail: "Cocktail",
+                snack: "Snacks",
+            };
+            document.querySelectorAll(".kind-badge").forEach((b) => {
+                b.textContent = kindLabels[b.dataset.k] || b.textContent;
+            });
+
+            function applyFilters() {
+                const maxTime = Number(document.getElementById("filter-time").value);
+                const kind = document.getElementById("filter-kind").value;
+
+                document.querySelectorAll(".recipe-card").forEach((card) => {
+                    const time = parseInt(card.dataset.time);
+                    const cardKind = card.dataset.kind;
+                    const timeOk = maxTime === 0 || (maxTime === 61 ? time > 60 : time <= maxTime);
+                    const kindOk = kind === "" || cardKind === kind;
+                    card.style.display = timeOk && kindOk ? "" : "none";
+                });
+            }
+        </script>
+    </body>
+</html>

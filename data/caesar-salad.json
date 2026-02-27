@@ -1,0 +1,51 @@
+{
+    "name": "Caesar Salad",
+    "slug": "caesar-salad",
+    "description": "Klassisk salat med crispy krutonger og parmesan",
+    "image": "caesar-salad.jpg",
+    "kind": "lunch",
+    "cookTimeMinutes": 15,
+    "instructions": [
+        "Tear romaine lettuce into bite-sized pieces and place in a large bowl",
+        "Cut bread into cubes, toss with olive oil, and toast in the oven until golden",
+        "Whisk together egg yolk, lemon juice, garlic, mustard, and olive oil for the dressing",
+        "Toss the lettuce with dressing, croutons, and shaved parmesan"
+    ],
+    "ingredients": [
+        {
+            "name": "romaine lettuce",
+            "amount": 2,
+            "unit": "pcs"
+        },
+        {
+            "name": "bread",
+            "amount": 3,
+            "unit": "slices"
+        },
+        {
+            "name": "parmesan",
+            "amount": 50,
+            "unit": "gram"
+        },
+        {
+            "name": "egg yolk",
+            "amount": 1,
+            "unit": "pcs"
+        },
+        {
+            "name": "lemon juice",
+            "amount": 2,
+            "unit": "tbsp"
+        },
+        {
+            "name": "olive oil",
+            "amount": 4,
+            "unit": "tbsp"
+        },
+        {
+            "name": "garlic",
+            "amount": 1,
+            "unit": "cloves"
+        }
+    ]
+}

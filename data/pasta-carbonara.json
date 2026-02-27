@@ -1,0 +1,31 @@
+{
+    "name": "Pasta Carbonara",
+    "slug": "pasta-carbonara",
+    "description": "Enkel pastaoppskrift",
+    "image": "carbonara.jpg",
+    "kind": "dinner",
+    "cookTimeMinutes": 30,
+    "instructions": ["Boil pasta", "Crack eggs in bowl and add peccorino and pepper", "Combine mixture with pasta"],
+    "ingredients": [
+        {
+            "name": "pepper",
+            "amount": 1,
+            "unit": "tbsp"
+        },
+        {
+            "name": "parmesan",
+            "amount": 4,
+            "unit": "tbsp"
+        },
+        {
+            "name": "bacon",
+            "amount": 400,
+            "unit": "gram"
+        },
+        {
+            "name": "pasta",
+            "amount": 500,
+            "unit": "gram"
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+{
+    "name": "Beef Tacos",
+    "slug": "beef-tacos",
+    "description": "Meksikanske tacos med krydret kjøttdeig",
+    "image": "beef-tacos.jpg",
+    "kind": "dinner",
+    "cookTimeMinutes": 25,
+    "instructions": [
+        "Brown the ground beef in a skillet over medium-high heat",
+        "Add cumin, chili powder, garlic powder, and salt to the beef",
+        "Warm the tortillas in a dry pan or in the oven",
+        "Dice tomatoes, slice avocado, and shred lettuce for toppings",
+        "Assemble tacos with beef, toppings, and a squeeze of lime"
+    ],
+    "ingredients": [
+        {
+            "name": "ground beef",
+            "amount": 500,
+            "unit": "gram"
+        },
+        {
+            "name": "tortillas",
+            "amount": 8,
+            "unit": "pcs"
+        },
+        {
+            "name": "tomato",
+            "amount": 2,
+            "unit": "pcs"
+        },
+        {
+            "name": "avocado",
+            "amount": 1,
+            "unit": "pcs"
+        },
+        {
+            "name": "lime",
+            "amount": 1,
+            "unit": "pcs"
+        },
+        {
+            "name": "cumin",
+            "amount": 1,
+            "unit": "tbsp"
+        },
+        {
+            "name": "chili powder",
+            "amount": 1,
+            "unit": "tbsp"
+        }
+    ]
+}

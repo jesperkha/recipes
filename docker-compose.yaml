@@ -1,0 +1,15 @@
+services:
+    recipes:
+        build: .
+        container_name: recipes
+        ports:
+            - "8080:8080"
+        restart: unless-stopped
+        volumes:
+            - recipe-data:/app/data
+        environment:
+            - PORT=:8080
+            - PASSWORD_HASH=YOUR_PASSWORD_HASH
+
+volumes:
+    recipe-data:

@@ -1,0 +1,52 @@
+{
+    "name": "Tomato Soup",
+    "slug": "tomato-soup",
+    "description": "Varm og enkel tomatsuppe med basilikum",
+    "image": "tomato-soup.jpg",
+    "kind": "lunch",
+    "cookTimeMinutes": 35,
+    "instructions": [
+        "Dice onion and garlic, then sauté in olive oil until softened",
+        "Add canned tomatoes, vegetable broth, and a pinch of sugar",
+        "Bring to a boil, then reduce heat and simmer for 20 minutes",
+        "Blend the soup until smooth using an immersion blender",
+        "Stir in cream and fresh basil, season with salt and pepper"
+    ],
+    "ingredients": [
+        {
+            "name": "canned tomatoes",
+            "amount": 800,
+            "unit": "gram"
+        },
+        {
+            "name": "vegetable broth",
+            "amount": 300,
+            "unit": "ml"
+        },
+        {
+            "name": "onion",
+            "amount": 1,
+            "unit": "pcs"
+        },
+        {
+            "name": "garlic",
+            "amount": 2,
+            "unit": "cloves"
+        },
+        {
+            "name": "heavy cream",
+            "amount": 100,
+            "unit": "ml"
+        },
+        {
+            "name": "fresh basil",
+            "amount": 10,
+            "unit": "leaves"
+        },
+        {
+            "name": "olive oil",
+            "amount": 2,
+            "unit": "tbsp"
+        }
+    ]
+}
