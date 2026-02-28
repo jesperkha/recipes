@@ -4,7 +4,7 @@
     "description": "En samling oppskrifter",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#ffffff",
+    "background_color": "#dfdfdf",
     "theme_color": "#111827",
     "icons": [
         {
