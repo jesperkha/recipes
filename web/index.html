@@ -96,8 +96,25 @@
                     href="/recipe/{{ .Slug }}"
                     data-time="{{ .CookTimeMinutes }}"
                     data-kind="{{ .Kind }}"
-                    class="recipe-card block p-5 rounded-lg border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm transition-all"
+                    data-slug="{{ .Slug }}"
+                    class="recipe-card relative block p-5 rounded-lg border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm transition-all"
                 >
+                    <svg
+                        class="star-indicator absolute top-4 right-4 hidden"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="#facc15"
+                        stroke="#facc15"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                        ></polygon>
+                    </svg>
                     <h2 class="text-lg font-medium text-gray-900">{{ .Name }}</h2>
                     <p class="mt-1 text-sm text-gray-500">{{ .Description }}</p>
                     <div class="mt-3 flex items-center gap-2">
@@ -127,6 +144,14 @@
                 b.textContent = kindLabels[b.dataset.k] || b.textContent;
             });
 
+            function getStarred() {
+                try {
+                    return JSON.parse(localStorage.getItem("starred") || "[]");
+                } catch {
+                    return [];
+                }
+            }
+
             // Fuzzy match: checks if all characters in the query appear
             // in order within the target string, allowing gaps.
             function fuzzyMatch(query, target) {
@@ -143,8 +168,20 @@
                 const maxTime = Number(document.getElementById("filter-time").value);
                 const kind = document.getElementById("filter-kind").value;
                 const query = document.getElementById("search").value.trim();
+                const starred = getStarred();
+                const list = document.getElementById("recipe-list");
+                const cards = [...list.querySelectorAll(".recipe-card")];
 
-                document.querySelectorAll(".recipe-card").forEach((card) => {
+                // Sort: starred first, preserve original order within each group
+                cards.sort((a, b) => {
+                    const aStarred = starred.includes(a.dataset.slug) ? 0 : 1;
+                    const bStarred = starred.includes(b.dataset.slug) ? 0 : 1;
+                    return aStarred - bStarred;
+                });
+
+                // Re-append in sorted order and apply visibility filters
+                cards.forEach((card) => {
+                    list.appendChild(card);
                     const time = parseInt(card.dataset.time);
                     const cardKind = card.dataset.kind;
                     const title = card.querySelector("h2").textContent;
@@ -152,8 +189,17 @@
                     const kindOk = kind === "" || cardKind === kind;
                     const searchOk = query === "" || fuzzyMatch(query, title);
                     card.style.display = timeOk && kindOk && searchOk ? "" : "none";
+
+                    // Show or hide star indicator
+                    const starEl = card.querySelector(".star-indicator");
+                    if (starEl) {
+                        starEl.classList.toggle("hidden", !starred.includes(card.dataset.slug));
+                    }
                 });
             }
+
+            // Sort on initial page load
+            applyFilters();
         </script>
     </body>
 </html>
