@@ -33,6 +33,7 @@ func New(config *config.Config) *Server {
 	mux.Get("/ping", pingHandler())
 	mux.Get("/create", createHandler())
 	mux.Get("/recipe/{name}", recipeHandler())
+	mux.Get("/api/recipe/{name}", recipeAPIHandler())
 	mux.Post("/recipe", createRecipeHandler(config.PasswordHash))
 	mux.Post("/auth", authHandler(config.PasswordHash))
 	mux.Get("/assets/*", assetsHandler())

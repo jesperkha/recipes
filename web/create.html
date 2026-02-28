@@ -19,11 +19,12 @@
                 <span>Tilbake</span>
             </a>
 
-            <h1 class="mt-6 text-4xl font-semibold tracking-tight text-gray-900">Ny oppskrift</h1>
-            <p class="mt-3 text-lg text-gray-500">Legg til en ny oppskrift.</p>
+            <h1 id="page-title" class="mt-6 text-4xl font-semibold tracking-tight text-gray-900">Ny oppskrift</h1>
+            <p id="page-desc" class="mt-3 text-lg text-gray-500">Legg til en ny oppskrift.</p>
 
             <form method="POST" action="/recipe" class="mt-10 space-y-8" id="recipe-form">
                 <input type="hidden" name="password" id="password-field" />
+                <input type="hidden" name="edit" id="edit-field" value="false" />
 
                 <!-- Name -->
                 <div>
@@ -35,6 +36,9 @@
                         required
                         class="mt-1 w-full rounded-lg bg-gray-50 px-4 py-2.5 text-gray-900 outline-none focus:ring-2 focus:ring-gray-200"
                     />
+                    <p id="name-error" class="hidden mt-1 text-sm text-red-500">
+                        En oppskrift med dette navnet finnes allerede.
+                    </p>
                 </div>
 
                 <!-- Description -->
@@ -182,6 +186,7 @@
                 <!-- Submit -->
                 <button
                     type="submit"
+                    id="submit-btn"
                     class="w-full rounded-lg bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors cursor-pointer"
                 >
                     Opprett oppskrift
@@ -229,7 +234,7 @@
                 el.style.height = el.scrollHeight + "px";
             }
 
-            function addIngredient() {
+            function addIngredient(data) {
                 const container = document.getElementById("ingredients");
                 const div = document.createElement("div");
                 div.className = "space-y-2 rounded-lg bg-gray-50 p-3";
@@ -277,14 +282,118 @@
                     </div>
                 `;
                 container.appendChild(div);
+                if (data) {
+                    div.querySelector('[name="ingredientName"]').value = data.name;
+                    div.querySelector('[name="ingredientAmount"]').value = data.amount;
+                    div.querySelector('[name="ingredientUnit"]').value = data.unit;
+                }
             }
+
+            // --- Edit mode ---
+            const editSlug = new URLSearchParams(window.location.search).get("edit");
+            const isEditMode = !!editSlug;
+
+            async function loadRecipeForEdit(slug) {
+                const res = await fetch(`/api/recipe/${slug}`);
+                if (!res.ok) return null;
+                return res.json();
+            }
+
+            async function setupEditMode() {
+                if (!isEditMode) return;
+
+                document.getElementById("edit-field").value = "true";
+                document.getElementById("page-title").textContent = "Rediger oppskrift";
+                document.getElementById("page-desc").textContent = "Endre en eksisterende oppskrift.";
+                document.getElementById("submit-btn").textContent = "Lagre";
+                document.title = "Rediger oppskrift";
+
+                const recipe = await loadRecipeForEdit(editSlug);
+                if (!recipe) return;
+
+                document.getElementById("name").value = recipe.name;
+                document.getElementById("name").readOnly = true;
+                document.getElementById("name").classList.add("text-gray-400", "cursor-not-allowed");
+                document.getElementById("description").value = recipe.description;
+                document.getElementById("kind").value = recipe.kind;
+                document.getElementById("cookTimeMinutes").value = recipe.cookTimeMinutes;
+
+                // Populate instructions
+                const instrContainer = document.getElementById("instructions");
+                instrContainer.innerHTML = "";
+                recipe.instructions.forEach((text, i) => {
+                    addInstruction();
+                    const textareas = instrContainer.querySelectorAll('textarea[name="instructions"]');
+                    textareas[i].value = text;
+                    autoResize(textareas[i]);
+                });
+
+                // Populate ingredients
+                const ingContainer = document.getElementById("ingredients");
+                ingContainer.innerHTML = "";
+                recipe.ingredients.forEach((ing) => {
+                    addIngredient(ing);
+                });
+            }
+
+            setupEditMode();
+
+            // --- Form submission with duplicate check ---
+            document.getElementById("recipe-form").addEventListener("submit", async function (e) {
+                e.preventDefault();
+                const nameError = document.getElementById("name-error");
+                nameError.classList.add("hidden");
+
+                const formData = new FormData(this);
+
+                // Always set password from sessionStorage right before sending
+                const pw = sessionStorage.getItem("recipe_password") || "";
+                formData.set("password", pw);
+
+                const res = await fetch("/recipe", {
+                    method: "POST",
+                    body: formData,
+                    redirect: "manual",
+                });
+
+                if (res.status === 401) {
+                    sessionStorage.removeItem("recipe_password");
+                    showModal();
+                    return;
+                }
+
+                if (res.status === 409) {
+                    nameError.classList.remove("hidden");
+                    return;
+                }
+
+                // 303 redirect means success — build the slug and navigate
+                if (res.type === "opaqueredirect") {
+                    const slug = formData
+                        .get("name")
+                        .trim()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, "-")
+                        .replace(/^-|-$/g, "");
+                    window.location.href = "/recipe/" + slug;
+                    return;
+                }
+
+                if (res.ok) {
+                    window.location.href = "/";
+                }
+            });
         </script>
 
         <!-- Password Modal -->
-        <div id="password-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div
+            id="password-modal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            style="display: none"
+        >
             <div class="bg-white rounded-2xl shadow-xl p-8 w-[90%] max-w-sm" onclick="event.stopPropagation()">
                 <h2 class="text-lg font-semibold text-gray-900">Skriv inn passord</h2>
-                <p class="mt-1 text-sm text-gray-500">Det kreves passord for å opprette oppskrifter.</p>
+                <p id="modal-desc" class="mt-1 text-sm text-gray-500">Det kreves passord for å opprette oppskrifter.</p>
                 <input
                     id="modal-password"
                     type="password"
@@ -313,17 +422,20 @@
         <script>
             // --- Password auth ---
             const modal = document.getElementById("password-modal");
-            const form = document.getElementById("recipe-form");
+
+            if (isEditMode) {
+                document.getElementById("modal-desc").textContent = "Det kreves passord for å redigere oppskrifter.";
+            }
 
             function showModal() {
-                modal.classList.remove("hidden");
+                modal.style.display = "flex";
                 document.getElementById("modal-password").value = "";
                 document.getElementById("modal-error").classList.add("hidden");
                 setTimeout(() => document.getElementById("modal-password").focus(), 50);
             }
 
             function hideModal() {
-                modal.classList.add("hidden");
+                modal.style.display = "none";
             }
 
             async function verifyPassword(password) {

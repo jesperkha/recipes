@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -65,6 +66,21 @@ func recipeHandler() http.HandlerFunc {
 	}
 }
 
+func recipeAPIHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		slug := chi.URLParam(r, "name")
+
+		recipe, err := recipes.LoadRecipe("data", slug)
+		if err != nil {
+			http.Error(w, "recipe not found", http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(recipe)
+	}
+}
+
 func createHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "web/create.html")
@@ -95,17 +111,19 @@ func authHandler(passwordHash string) http.HandlerFunc {
 
 func createRecipeHandler(passwordHash string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
+		if err := r.ParseMultipartForm(10 << 20); err != nil {
 			http.Error(w, "invalid form data", http.StatusBadRequest)
 			return
 		}
 
 		password := r.FormValue("password")
 		if !checkPassword(password, passwordHash) {
+			log.Printf("Got %s", password)
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
+		isEdit := r.FormValue("edit") == "true"
 		cookTime, _ := strconv.Atoi(r.FormValue("cookTimeMinutes"))
 
 		names := r.Form["ingredientName"]
@@ -130,6 +148,12 @@ func createRecipeHandler(passwordHash string) http.HandlerFunc {
 			CookTimeMinutes: cookTime,
 			Instructions:    r.Form["instructions"],
 			Ingredients:     ingredients,
+		}
+
+		// If not editing, check that the recipe doesn't already exist
+		if !isEdit && recipes.RecipeExists("data", recipe.Slug) {
+			http.Error(w, "recipe already exists", http.StatusConflict)
+			return
 		}
 
 		if err := recipes.SaveRecipe("data", recipe); err != nil {

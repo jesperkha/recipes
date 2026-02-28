@@ -101,3 +101,10 @@ func SaveRecipe(dir string, r Recipe) error {
 
 	return nil
 }
+
+// RecipeExists checks whether a recipe with the given slug already exists.
+func RecipeExists(dir string, slug string) bool {
+	path := filepath.Join(dir, slug+".json")
+	_, err := os.Stat(path)
+	return err == nil
+}
