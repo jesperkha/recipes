@@ -184,3 +184,27 @@ func indexHandler() http.HandlerFunc {
 func assetsHandler() http.HandlerFunc {
 	return http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets"))).ServeHTTP
 }
+
+func deleteRecipeHandler(passwordHash string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var body struct {
+			Password string `json:"password"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "invalid request", http.StatusBadRequest)
+			return
+		}
+		if !checkPassword(body.Password, passwordHash) {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		slug := chi.URLParam(r, "name")
+		if err := recipes.DeleteRecipe("data", slug); err != nil {
+			http.Error(w, "failed to delete recipe", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
+}

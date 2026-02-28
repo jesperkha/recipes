@@ -108,3 +108,12 @@ func RecipeExists(dir string, slug string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
+
+// DeleteRecipe removes a recipe JSON file from the given directory by slug.
+func DeleteRecipe(dir string, slug string) error {
+	path := filepath.Join(dir, slug+".json")
+	if err := os.Remove(path); err != nil {
+		return fmt.Errorf("deleting file %s: %w", path, err)
+	}
+	return nil
+}
