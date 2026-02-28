@@ -2,6 +2,12 @@
 
 A simple self-hosted recipe app built with Go and server-side rendered HTML. Store, browse, and create recipes through a clean web interface.
 
+## Screenshots
+
+<p>
+  <img src=".github/screenshot.png" width="100%" />
+</p>
+
 ## Features
 
 - Browse all recipes with filtering by type and cook time
