@@ -7,8 +7,7 @@ A simple self-hosted recipe app built with Go and server-side rendered HTML. Sto
 - Browse all recipes with filtering by type and cook time
 - View recipe details with ingredients and step-by-step instructions
 - Create new recipes through a web form (password protected)
-- JSON file storage — no database needed
-- Norwegian UI
+- JSON file storage
 
 ## Setup
 
@@ -16,6 +15,7 @@ A simple self-hosted recipe app built with Go and server-side rendered HTML. Sto
 
 - [Go 1.25+](https://go.dev/dl/) (for local development)
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) (for containerized setup)
+- [cenv](https://github.com/echo-webkom/cenv)
 
 ### Password
 
@@ -29,19 +29,16 @@ Generate a password hash:
 
 ### Environment variables
 
-| Variable        | Description                        | Example         |
-| --------------- | ---------------------------------- | --------------- |
-| `PORT`          | Port to listen on                  | `:8080`         |
-| `PASSWORD_HASH` | SHA-256 hash of the admin password | `5e884898da...` |
+```sh
+cenv fix
+```
+
+Set `PASSWORD_HASH` in `.env` using the output from `./hashpass.sh`.
 
 ## Run locally
 
-1. Set `PASSWORD_HASH` in `.env` using the output from `./hashpass.sh`.
-
-2. Run the server:
-
 ```sh
-go run ./cmd
+go run ./cmd/main.go
 ```
 
 The app will be available at [http://localhost:8080](http://localhost:8080).
@@ -49,16 +46,12 @@ The app will be available at [http://localhost:8080](http://localhost:8080).
 ## Run with Docker Compose
 
 ```sh
-# Get password hash and change it in docker-compose.yaml
-./hashpass.sh
-
-# Build and run the container
 docker compose up --build -d
 ```
 
 The app will be available at [http://localhost:8080](http://localhost:8080).
 
-Recipe data is stored in a Docker volume (`recipe-data`) and persists across container restarts.
+Recipe data is stored in a local folder (`data`) and persists across container restarts.
 
 ## License
 
