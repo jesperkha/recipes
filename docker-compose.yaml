@@ -6,10 +6,6 @@ services:
             - "8080:8080"
         restart: unless-stopped
         volumes:
-            - recipe-data:/app/data
-        environment:
-            - PORT=:8080
-            - PASSWORD_HASH=YOUR_PASSWORD_HASH
-
-volumes:
-    recipe-data:
+            - ./data:/app/data
+        env_file:
+            - .env
